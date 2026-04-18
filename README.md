@@ -164,5 +164,4 @@ npm run dev
 - Updated sample text and assignment formatting
 
 ## Author
-
-- Assignment project template generated with AI assistance.
+- Siddhi Jadhav
