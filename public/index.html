@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LaundryFlow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="hero-strip"></div>
+    <header class="top-navbar sticky-top">
+      <div class="container py-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div>
+            <h1 class="h3 mb-1 fw-bold">LaundryFlow</h1>
+            <p class="text-secondary mb-0">Smart order tracking, status control, and delivery insights in one workspace.</p>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="pill-group" role="group" aria-label="Theme picker">
+              <button type="button" class="btn btn-sm btn-outline-primary theme-option" data-theme="light">
+                <i class="bi bi-sun"></i>
+                Light
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-primary theme-option" data-theme="dark">
+                <i class="bi bi-moon-stars"></i>
+                Dark
+              </button>
+            </div>
+
+            <div class="pill-group" role="group" aria-label="Role picker">
+              <button type="button" class="btn btn-sm btn-outline-secondary role-option" data-role="admin">
+                <i class="bi bi-gem"></i>
+                Admin
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary role-option" data-role="staff">
+                <i class="bi bi-person-workspace"></i>
+                Staff
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-shell container-fluid py-4">
+      <aside class="left-sidebar card shadow-sm">
+        <div class="card-body">
+          <div class="sidebar-header d-flex align-items-center justify-content-between mb-3">
+            <h2 class="h6 text-uppercase text-secondary mb-0 sidebar-title">Navigation</h2>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="sidebarToggle" aria-label="Collapse navigation menu">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </div>
+          <nav class="sidebar-nav nav flex-column gap-2">
+            <a class="nav-link sidebar-link" data-view="dashboard" data-role-visible="admin" href="#dashboardCards">
+              <i class="bi bi-grid"></i>
+              <span class="sidebar-label">Dashboard</span>
+            </a>
+            <a class="nav-link sidebar-link" data-view="create-order" data-role-visible="admin" href="#createOrderSection">
+              <i class="bi bi-plus-circle"></i>
+              <span class="sidebar-label">Create Order</span>
+            </a>
+            <a class="nav-link sidebar-link" data-view="search-filters" href="#searchFilterSection">
+              <i class="bi bi-funnel"></i>
+              <span class="sidebar-label">Search and Filters</span>
+            </a>
+            <a class="nav-link sidebar-link" data-view="order-status" href="#ordersSection">
+              <i class="bi bi-arrow-repeat"></i>
+              <span class="sidebar-label">Order Status</span>
+            </a>
+            <a class="nav-link sidebar-link" data-view="total-orders" href="#ordersSection">
+              <i class="bi bi-list-check"></i>
+              <span class="sidebar-label">Total Orders</span>
+              <span class="badge text-bg-primary ms-auto" id="sidebarTotalOrders">0</span>
+            </a>
+            <a class="nav-link sidebar-link" data-view="recent-orders" data-role-visible="admin" href="#recentOrdersSection">
+              <i class="bi bi-clock-history"></i>
+              <span class="sidebar-label">Recent Orders</span>
+            </a>
+          </nav>
+        </div>
+      </aside>
+
+      <div class="content-area container">
+      <section class="row g-3 mb-4" id="dashboardCards" data-role-visible="admin">
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Total Orders</p>
+              <h2 class="h4 mb-0" id="cardTotalOrders">0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Total Revenue</p>
+              <h2 class="h4 mb-0" id="cardTotalRevenue">Rs. 0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Pending Orders</p>
+              <h2 class="h4 mb-0" id="adminPendingOrders">0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Delivered Orders</p>
+              <h2 class="h4 mb-0" id="adminDeliveredOrders">0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Avg. Order Value</p>
+              <h2 class="h4 mb-0" id="adminAverageOrderValue">Rs. 0</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="card shadow-sm dashboard-card metric-card">
+            <div class="card-body">
+              <p class="text-secondary mb-2">Today's Orders</p>
+              <h2 class="h4 mb-0" id="adminTodayOrders">0</h2>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row g-3 mb-4" id="adminCharts" data-role-visible="admin">
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm chart-card">
+            <div class="card-header bg-transparent py-3">
+              <h2 class="h6 mb-0">Daily Revenue (Last 7 Days)</h2>
+            </div>
+            <div class="card-body chart-wrap">
+              <canvas id="dailyRevenueChart" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm chart-card">
+            <div class="card-header bg-transparent py-3">
+              <h2 class="h6 mb-0">Weekly Revenue (Last 6 Weeks)</h2>
+            </div>
+            <div class="card-body chart-wrap">
+              <canvas id="weeklyRevenueChart" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm chart-card">
+            <div class="card-header bg-transparent py-3">
+              <h2 class="h6 mb-0">Orders Created By Date</h2>
+            </div>
+            <div class="card-body chart-wrap">
+              <canvas id="orderTrendChart" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm chart-card">
+            <div class="card-header bg-transparent py-3">
+              <h2 class="h6 mb-0">Status Distribution</h2>
+            </div>
+            <div class="card-body chart-wrap d-flex align-items-center justify-content-center">
+              <canvas id="statusPieChart" class="pie-chart" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card shadow-sm mb-4" data-role-visible="admin" id="recentOrdersSection">
+        <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Recent Orders (Admin)</h2>
+          <span class="badge text-bg-primary" id="recentOrdersCount">0</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div id="alertArea"></div>
+
+      <section class="card shadow-sm mb-4" data-role-visible="admin" id="createOrderSection">
+        <div class="card-header bg-transparent py-3">
+          <h2 class="h5 mb-0">Create Order</h2>
+        </div>
+        <div class="card-body">
+          <form id="orderForm" class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="customerName" class="form-label">Customer Name</label>
+              <input type="text" id="customerName" class="form-control" required />
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" id="phone" class="form-control" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label d-block">Garments</label>
+              <div id="garmentsContainer" class="vstack gap-2"></div>
+              <button type="button" id="addGarmentBtn" class="btn btn-sm btn-outline-secondary mt-2">
+                <i class="bi bi-plus-circle"></i>
+                Add Garment
+              </button>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="estimatedDeliveryDate" class="form-label">Estimated Delivery Date</label>
+              <input type="date" id="estimatedDeliveryDate" class="form-control" />
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+              <div class="text-md-end">
+                <p class="mb-1 text-secondary">Auto Total Bill</p>
+                <h3 class="h5 mb-0" id="formTotal">Rs. 0</h3>
+              </div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary px-4">Create Order</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card shadow-sm mb-4" id="searchFilterSection">
+        <div class="card-header bg-transparent py-3">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <h2 class="h5 mb-0">Search and Filter</h2>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-status="">All</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-status="RECEIVED">Received</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-status="PROCESSING">Processing</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-status="READY">Ready</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-status="DELIVERED">Delivered</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label for="searchName" class="form-label">Search by Customer Name</label>
+              <input type="text" id="searchName" class="form-control" placeholder="Enter name" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="searchPhone" class="form-label">Search by Phone</label>
+              <input type="text" id="searchPhone" class="form-control" placeholder="Enter phone" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="filterStatus" class="form-label">Filter by Status</label>
+              <select id="filterStatus" class="form-select">
+                <option value="">All</option>
+                <option value="RECEIVED">RECEIVED</option>
+                <option value="PROCESSING">PROCESSING</option>
+                <option value="READY">READY</option>
+                <option value="DELIVERED">DELIVERED</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card shadow-sm" id="ordersSection">
+        <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Orders</h2>
+          <span class="badge text-bg-primary" id="ordersCountBadge">0</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Garments</th>
+                  <th class="sensitive-col">Total</th>
+                  <th>Status</th>
+                  <th>Est. Delivery</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

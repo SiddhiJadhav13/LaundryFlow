@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ORD-1776484770436-9861",
+    "customerName": "Siddhi",
+    "phone": "8267452819",
+    "garments": [
+      {
+        "type": "Saree",
+        "quantity": 2,
+        "unitPrice": 120,
+        "subtotal": 240
+      }
+    ],
+    "totalBill": 240,
+    "status": "DELIVERED",
+    "estimatedDeliveryDate": "2026-04-22",
+    "createdAt": "2026-04-18T03:59:30.435Z",
+    "updatedAt": "2026-04-18T04:00:56.670Z"
+  }
+]
