@@ -1,7 +1,14 @@
 const fs = require("fs/promises");
 const path = require("path");
+const { MongoClient } = require("mongodb");
 
 const DATA_FILE = path.join(__dirname, "..", "data", "orders.json");
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME || "laundryflow";
+const MONGODB_COLLECTION = process.env.MONGODB_COLLECTION || "orders";
+
+let mongoClient;
+let mongoCollection;
 
 const PRICE_LIST = {
   Shirt: 50,
@@ -20,6 +27,49 @@ async function ensureDataFile() {
   } catch (_error) {
     await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
     await fs.writeFile(DATA_FILE, "[]", "utf8");
+  }
+}
+
+async function getMongoCollection() {
+  if (!MONGODB_URI) {
+    return null;
+  }
+
+  try {
+    if (!mongoClient) {
+      mongoClient = new MongoClient(MONGODB_URI, {
+        maxPoolSize: 10,
+      });
+      await mongoClient.connect();
+    }
+
+    const db = mongoClient.db(MONGODB_DB_NAME);
+    await db.command({ ping: 1 });
+
+    if (!mongoCollection) {
+      mongoCollection = db.collection(MONGODB_COLLECTION);
+      await mongoCollection.createIndex({ id: 1 }, { unique: true });
+      await mongoCollection.createIndex({ customerName: 1 });
+      await mongoCollection.createIndex({ phone: 1 });
+      await mongoCollection.createIndex({ status: 1 });
+      await mongoCollection.createIndex({ createdAt: -1 });
+    }
+
+    return mongoCollection;
+  } catch (error) {
+    console.error("MongoDB unavailable, using JSON fallback:", error.message);
+    mongoCollection = null;
+
+    if (mongoClient) {
+      try {
+        await mongoClient.close();
+      } catch (_closeError) {
+        // Ignore close errors during recovery.
+      }
+      mongoClient = null;
+    }
+
+    return null;
   }
 }
 
@@ -119,18 +169,43 @@ async function createOrder(payload = {}) {
     updatedAt: now,
   };
 
-  const orders = await readOrders();
-  orders.unshift(order);
-  await writeOrders(orders);
+  const collection = await getMongoCollection();
+  if (collection) {
+    await collection.insertOne(order);
+  } else {
+    const orders = await readOrders();
+    orders.unshift(order);
+    await writeOrders(orders);
+  }
 
   return order;
 }
 
 async function getOrders(filters = {}) {
-  const orders = await readOrders();
+  const collection = await getMongoCollection();
   const searchName = String(filters.customerName || "").trim().toLowerCase();
   const searchPhone = String(filters.phone || "").trim().toLowerCase();
   const status = String(filters.status || "").trim().toUpperCase();
+
+  if (collection) {
+    const query = {};
+
+    if (searchName) {
+      query.customerName = { $regex: searchName, $options: "i" };
+    }
+
+    if (searchPhone) {
+      query.phone = { $regex: searchPhone, $options: "i" };
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    return collection.find(query).sort({ createdAt: -1 }).toArray();
+  }
+
+  const orders = await readOrders();
 
   return orders.filter((order) => {
     const matchesName = searchName
@@ -149,6 +224,26 @@ async function getOrders(filters = {}) {
 
 async function updateOrderStatus(id, status) {
   const normalizedStatus = normalizeStatus(status);
+  const collection = await getMongoCollection();
+
+  if (collection) {
+    const updateResult = await collection.updateOne(
+      { id },
+      {
+        $set: {
+          status: normalizedStatus,
+          updatedAt: new Date().toISOString(),
+        },
+      }
+    );
+
+    if (!updateResult.matchedCount) {
+      throw new Error("Order not found");
+    }
+
+    return collection.findOne({ id });
+  }
+
   const orders = await readOrders();
   const targetIndex = orders.findIndex((order) => order.id === id);
 
@@ -164,7 +259,7 @@ async function updateOrderStatus(id, status) {
 }
 
 async function getDashboard() {
-  const orders = await readOrders();
+  const orders = await getOrders({});
 
   const totals = {
     totalOrders: orders.length,
@@ -186,6 +281,11 @@ async function getDashboard() {
   return totals;
 }
 
+async function getStorageMode() {
+  const collection = await getMongoCollection();
+  return collection ? "mongodb" : "json-fallback";
+}
+
 module.exports = {
   PRICE_LIST,
   VALID_STATUSES,
@@ -193,4 +293,5 @@ module.exports = {
   getOrders,
   updateOrderStatus,
   getDashboard,
+  getStorageMode,
 };

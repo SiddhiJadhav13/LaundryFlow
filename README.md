@@ -6,7 +6,7 @@ A full-stack mini project for managing dry cleaning/laundry orders with dashboar
 
 - Backend: Node.js + Express.js
 - Frontend: HTML + CSS + JavaScript + Bootstrap 5
-- Database/Persistence: JSON file storage (`data/orders.json`)
+- Database/Persistence: MongoDB Atlas (recommended) with JSON fallback (`data/orders.json`)
 
 ## Features
 
@@ -113,13 +113,23 @@ Examples:
 npm install
 ```
 
-3. Start server:
+3. Configure environment (for MongoDB persistence):
+
+```bash
+cp .env.example .env
+```
+
+Then update `MONGODB_URI` in `.env`.
+
+If `MONGODB_URI` is not set, the app automatically falls back to local JSON storage.
+
+4. Start server:
 
 ```bash
 npm start
 ```
 
-4. Open in browser:
+5. Open in browser:
 - `http://localhost:3000`
 
 For development (auto-restart):
@@ -127,6 +137,39 @@ For development (auto-restart):
 ```bash
 npm run dev
 ```
+
+## MongoDB Atlas Setup
+
+Use this URI format in `.env`:
+
+```text
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-host>/laundryflow?retryWrites=true&w=majority
+```
+
+For your provided credentials, replace `<username>` with:
+
+```text
+sidjadhav132005_db_user
+```
+
+Keep the password in `.env` only and do not commit it.
+
+Optional variables:
+
+```text
+MONGODB_DB_NAME=laundryflow
+MONGODB_COLLECTION=orders
+```
+
+## Vercel Deployment Notes
+
+In Vercel Project Settings -> Environment Variables, add:
+
+- `MONGODB_URI`
+- `MONGODB_DB_NAME` (optional)
+- `MONGODB_COLLECTION` (optional)
+
+Without `MONGODB_URI`, data writes use local JSON, which is not persistent on Vercel.
 
 ## Hardcoded Price List
 
@@ -139,7 +182,8 @@ npm run dev
 
 ## Notes
 
-- Data is stored in `data/orders.json`.
+- If `MONGODB_URI` is set, data is stored in MongoDB Atlas.
+- If `MONGODB_URI` is missing, data is stored in `data/orders.json`.
 - This is a mini assignment-oriented project with simple architecture and clear code.
 
 ## AI Usage Report
